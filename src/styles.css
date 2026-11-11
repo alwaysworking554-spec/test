@@ -118,6 +118,49 @@ textarea.field { resize: none; }
   background: linear-gradient(var(--bg) 85%, rgba(0, 0, 0, 0)); }
 .row > span:first-child { margin-right: 10px; }
 
+/* Tasks & notes */
+.task { cursor: default; }
+.task .check { padding: 0; }
+.task-main { flex: 1; display: flex; flex-direction: column; align-items: flex-start; text-align: left; min-width: 0; }
+.task-meta { font-size: 12px; color: var(--dim); margin-top: 2px; }
+.task.done .task-meta { opacity: 0.6; }
+.task-home { cursor: pointer; }
+
+.empty { margin-top: 70px; text-align: center; }
+.empty-icon { width: 72px; height: 72px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; font-size: 30px;
+  color: var(--pink); border: 1px solid var(--pink); border-radius: 50%; box-shadow: 0 0 22px rgba(255, 46, 147, 0.55); }
+.empty-title { font-size: 20px; font-weight: 700; text-shadow: 0 0 12px rgba(255, 46, 147, 0.6); }
+.empty-sub { color: var(--dim); margin-top: 6px; font-size: 14px; }
+
+.note-card { width: 100%; text-align: left; color: inherit; }
+.note-card > div:first-child { min-width: 0; }
+.note-card .card-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+.card.note { border-left-color: var(--pink-light); border-style: dashed; border-left-style: solid; }
+.badge { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--pink); border: 1px solid var(--pink); border-radius: 999px; padding: 2px 8px; }
+
+.overlay { position: absolute; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.7); display: flex; align-items: flex-end; }
+.tsheet { width: 100%; background: var(--card); border-top: 1px solid var(--pink); border-radius: 22px 22px 0 0; padding: 20px 20px calc(24px + var(--safe-bottom));
+  box-shadow: 0 -4px 30px rgba(255, 46, 147, 0.3); display: flex; flex-direction: column; gap: 10px; }
+.tsheet-title { font-size: 18px; font-weight: 800; }
+.tfield { width: 100%; background: #000; color: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; font: inherit; font-size: 16px; color-scheme: dark; }
+.tfield:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 10px rgba(255, 46, 147, 0.4); }
+.tfield-label { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--dim); font-weight: 700; }
+.trow { display: flex; align-items: center; gap: 10px; }
+.btn { padding: 11px 18px; border-radius: 999px; border: 1px solid var(--border); font-weight: 700; }
+.btn.primary { background: var(--pink); color: #000; border-color: var(--pink); box-shadow: var(--glow); }
+.btn.primary:disabled { opacity: 0.4; box-shadow: none; }
+.btn.btn-danger { color: #ff6b6b; margin-left: auto; }
+.tlink { color: var(--pink); font-weight: 600; font-size: 15px; }
+.danger-text { color: #ff6b6b; }
+
+.editor { position: absolute; inset: 0; z-index: 30; background: var(--bg); display: flex; flex-direction: column; padding: calc(16px + var(--safe-top)) 20px calc(16px + var(--safe-bottom)); }
+.editor-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.editor-state { font-size: 12px; color: var(--dim); }
+.editor-date { margin-bottom: 12px; }
+.editor-date .tfield { width: auto; flex: 1; }
+.editor-body { flex: 1; width: 100%; resize: none; background: transparent; border: 0; color: #fff; font: inherit; font-size: 17px; line-height: 1.5; }
+.editor-body:focus { outline: none; }
+
 /* apple calendar sync: pill states + settings sheet */
 button.pill { background: none; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .pill.syncing .dot { animation: pulse 1s ease-in-out infinite; }

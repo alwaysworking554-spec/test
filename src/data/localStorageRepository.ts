@@ -1,9 +1,10 @@
 import type { Repository } from "./repository";
-import type { OrganizerEvent, Task } from "./types";
-import { devSeedEvents, seedTasks } from "./seed";
+import type { Note, OrganizerEvent, Task } from "./types";
+import { devSeedEvents } from "./seed";
 
 const EVENTS_KEY = "miami.events.v1";
 const TASKS_KEY = "miami.tasks.v1";
+const NOTES_KEY = "miami.notes.v1";
 
 function readArray<T>(key: string): T[] | null {
   const raw = localStorage.getItem(key);
@@ -35,15 +36,16 @@ export class LocalStorageRepository implements Repository {
     localStorage.setItem(EVENTS_KEY, JSON.stringify(events));
   }
   async listTasks(): Promise<Task[]> {
-    const stored = readArray<Task>(TASKS_KEY);
-    if (stored === null) {
-      const data = seedTasks();
-      localStorage.setItem(TASKS_KEY, JSON.stringify(data));
-      return data;
-    }
-    return stored;
+    // Starts empty; seedTasks() in seed.ts is an optional dev seed only.
+    return readArray<Task>(TASKS_KEY) ?? [];
   }
   async saveTasks(tasks: Task[]): Promise<void> {
     localStorage.setItem(TASKS_KEY, JSON.stringify(tasks));
+  }
+  async listNotes(): Promise<Note[]> {
+    return readArray<Note>(NOTES_KEY) ?? [];
+  }
+  async saveNotes(notes: Note[]): Promise<void> {
+    localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
   }
 }

@@ -28,6 +28,17 @@ export interface Task {
   done: boolean;
   /** Local date, YYYY-MM-DD, optional */
   due?: string;
+  notes?: string;
+}
+
+export interface Note {
+  id: string;
+  /** Full text; the title is its first line. */
+  body: string;
+  /** Optional day this note is attached to, YYYY-MM-DD */
+  date?: string;
+  /** Epoch ms */
+  updatedAt: number;
 }
 
 /** Pill state: synced, mid-sync, off (no permission / no calendar chosen) or failed. */

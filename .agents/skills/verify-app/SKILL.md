@@ -5,7 +5,7 @@ description: Launch, drive and capture evidence from the Miami Organizer app (Vi
 
 # verify-app
 
-The frontend runs in a plain browser; Tauri/iOS/Android are not needed to verify UI. All data is in `localStorage` (keys `miami.events.v1`, `miami.tasks.v1`).
+The frontend runs in a plain browser; Tauri/iOS/Android are not needed to verify UI. All data is in `localStorage` (keys `miami.events.v1`, `miami.tasks.v1`, `miami.notes.v1`).
 
 ## Launch
 From empty storage (a fresh Playwright context has none; in a real browser clear it with `localStorage.clear()`):
