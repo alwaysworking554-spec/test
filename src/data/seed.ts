@@ -1,16 +1,26 @@
-import { toKey } from "./dates";
 import type { OrganizerEvent, Task } from "./types";
 
-/** Seed relative to today so the home screen is never empty. */
-export function seedEvents(): OrganizerEvent[] {
+/** Optional dev seed: load the app with `?seed=1` while storage has no events. Not used in normal launches. */
+export function devSeedEvents(): OrganizerEvent[] {
   const now = new Date();
-  const day = (offset: number) => toKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset));
+  const mk = (id: string, title: string, offset: number, h: number, m: number, mins: number, location?: string): OrganizerEvent => {
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset, h, m);
+    return {
+      id,
+      title,
+      location,
+      start: start.toISOString(),
+      end: new Date(start.getTime() + mins * 60000).toISOString(),
+      allDay: false,
+      lastModified: now.toISOString(),
+      deleted: false,
+    };
+  };
   return [
-    { id: "e1", title: "Studio session", subtitle: "Wynwood Studio · 2h", date: day(0), time: "10:00" },
-    { id: "e2", title: "Dinner at Joe's", subtitle: "Joe's Stone Crab · party of 4", date: day(0), time: "19:30" },
-    { id: "e3", title: "Sunset run", subtitle: "South Pointe Park", date: day(2), time: "18:00" },
-    { id: "e4", title: "Gallery opening", subtitle: "Design District", date: day(5), time: "20:00" },
-    { id: "e5", title: "Dentist", subtitle: "Dr. Alvarez", date: day(-3), time: "09:15" },
+    mk("e1", "Studio session", 0, 10, 0, 120, "Wynwood Studio"),
+    mk("e2", "Dinner at Joe's", 0, 19, 30, 90, "Joe's Stone Crab"),
+    mk("e3", "Sunset run", 2, 18, 0, 45, "South Pointe Park"),
+    mk("e4", "Gallery opening", 5, 20, 0, 120, "Design District"),
   ];
 }
 

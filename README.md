@@ -1,7 +1,7 @@
 # Miami Organizer
 
 Pink-and-black ("neon glow") organizer app for iOS and Android built with **Tauri 2**, React, TypeScript and Vite.
-This is the scaffold: calendar home screen with seeded sample data. Events, Apple Calendar sync, tasks and notes arrive in later tickets.
+Events (create/edit/delete, month grid, day list and hourly day view) are implemented and persist locally. Apple Calendar sync, tasks and notes arrive in later tickets. Append `?seed=1` to the dev URL on a fresh install to load sample events.
 
 ## Architecture
 
@@ -16,6 +16,7 @@ This is the scaffold: calendar home screen with seeded sample data. Events, Appl
 npm install
 npm run dev        # http://127.0.0.1:5173 — use a 390x844 viewport
 npm run build      # typecheck + production build
+npm test           # unit tests for date/event logic (vitest)
 ```
 
 ## Run in Tauri desktop
@@ -57,3 +58,5 @@ The scaffold was built on Linux without Rust, Xcode or the Android SDK: the Taur
 See `.claude/skills/verify-app/SKILL.md` (mirrored in `.agents/skills/verify-app/`).
 
 ![Home screen](docs/home-390x844.png)
+
+![Month](docs/events-month-390x844.png) ![Add sheet](docs/events-add-sheet-390x844.png) ![Day view](docs/events-day-390x844.png)
