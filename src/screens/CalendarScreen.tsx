@@ -8,15 +8,16 @@ interface Props {
   events: OrganizerEvent[];
   tasks: Task[];
   sync: SyncStatus;
+  onOpenSync: () => void;
   onToggleTask: (id: string) => void;
   selected: string;
   onSelect: (key: string) => void;
   onOpenEvent: (e: OrganizerEvent) => void;
 }
 
-const SYNC_LABEL: Record<SyncStatus, string> = { synced: "Synced", syncing: "Syncing", offline: "Offline" };
+const SYNC_LABEL: Record<SyncStatus, string> = { synced: "Synced", syncing: "Syncing", off: "Off", error: "Error" };
 
-export function CalendarScreen({ events, tasks, sync, onToggleTask, selected, onSelect, onOpenEvent }: Props) {
+export function CalendarScreen({ events, tasks, sync, onOpenSync, onToggleTask, selected, onSelect, onOpenEvent }: Props) {
   const today = new Date();
   const todayKey = toKey(today);
   const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
@@ -61,10 +62,10 @@ export function CalendarScreen({ events, tasks, sync, onToggleTask, selected, on
           {MONTHS_SHORT[view.month]}
           <span className="pink">.</span> {view.year}
         </h1>
-        <div className="pill" data-testid="sync-pill">
+        <button className={`pill ${sync}`} data-testid="sync-pill" data-status={sync} aria-label="Apple Calendar sync settings" onClick={onOpenSync}>
           <span className="dot" />
           {SYNC_LABEL[sync]}
-        </div>
+        </button>
       </header>
 
       <div className="subline" data-testid="selected-day">

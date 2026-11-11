@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { LocalStorageRepository } from "./data/localStorageRepository";
-import { MockCalendarProvider } from "./data/calendarProvider";
-import type { OrganizerEvent, SyncStatus, Task } from "./data/types";
+import { createCalendarProvider } from "./data/providerFactory";
+import { useCalendarSync } from "./data/useCalendarSync";
+import { SyncSheet } from "./components/SyncSheet";
+import type { OrganizerEvent, Task } from "./data/types";
 import { CalendarScreen } from "./screens/CalendarScreen";
 import { Placeholder } from "./screens/Placeholder";
 import { EventSheet } from "./components/EventSheet";
@@ -10,23 +12,22 @@ import { TabBar, type Tab } from "./components/TabBar";
 
 export function App() {
   const repo = useMemo(() => new LocalStorageRepository(), []);
-  const calendar = useMemo(() => new MockCalendarProvider(), []);
+  const calendar = useMemo(() => createCalendarProvider(), []);
   const [tab, setTab] = useState<Tab>("calendar");
   const [events, setEvents] = useState<OrganizerEvent[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [sync, setSync] = useState<SyncStatus>("synced");
+  const [syncSheet, setSyncSheet] = useState(false);
   const [selected, setSelected] = useState(() => toKey(new Date()));
   const [sheet, setSheet] = useState<{ event?: OrganizerEvent } | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    void Promise.all([repo.listEvents(), repo.listTasks(), calendar.getSyncStatus()]).then(([e, t, s]) => {
+    void Promise.all([repo.listEvents(), repo.listTasks()]).then(([e, t]) => {
       setEvents(e);
       setTasks(t);
-      setSync(s);
       setReady(true);
     });
-  }, [repo, calendar]);
+  }, [repo]);
 
   const toggleTask = (id: string) => {
     const next = tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t));
@@ -38,15 +39,18 @@ export function App() {
     setEvents(next);
     void repo.saveEvents(next);
   };
+  const sync = useCalendarSync({ provider: calendar, events, ready, replaceEvents: persist });
   const saveEvent = (e: OrganizerEvent) => {
     persist(events.some((x) => x.id === e.id) ? events.map((x) => (x.id === e.id ? e : x)) : [...events, e]);
     setSelected(toKey(new Date(e.start)));
     setSheet(null);
+    sync.scheduleSync();
   };
   // Soft delete: keep a tombstone so a later sync can propagate the deletion.
   const deleteEvent = (e: OrganizerEvent) => {
     persist(events.map((x) => (x.id === e.id ? { ...x, deleted: true, lastModified: new Date().toISOString() } : x)));
     setSheet(null);
+    sync.scheduleSync();
   };
 
   return (
@@ -57,7 +61,8 @@ export function App() {
           <CalendarScreen
             events={events}
             tasks={tasks}
-            sync={sync}
+            sync={sync.status}
+            onOpenSync={() => setSyncSheet(true)}
             onToggleTask={toggleTask}
             selected={selected}
             onSelect={setSelected}
@@ -82,6 +87,7 @@ export function App() {
           onClose={() => setSheet(null)}
         />
       )}
+      {syncSheet && <SyncSheet sync={sync} onClose={() => setSyncSheet(false)} />}
       <TabBar tab={tab} onChange={setTab} />
     </div>
   );

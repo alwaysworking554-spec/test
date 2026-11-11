@@ -117,3 +117,20 @@ textarea.field { resize: none; }
 .day-head { position: sticky; top: calc(-24px - var(--safe-top)); z-index: 2; margin: calc(-24px - var(--safe-top)) -20px 0; padding: calc(24px + var(--safe-top)) 20px 8px;
   background: linear-gradient(var(--bg) 85%, rgba(0, 0, 0, 0)); }
 .row > span:first-child { margin-right: 10px; }
+
+/* apple calendar sync: pill states + settings sheet */
+button.pill { background: none; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pill.syncing .dot { animation: pulse 1s ease-in-out infinite; }
+.pill.off { color: var(--dim); border-color: var(--muted); box-shadow: none; }
+.pill.off .dot { background: var(--muted); box-shadow: none; }
+.pill.error { color: #ff5a5a; border-color: #ff5a5a; box-shadow: 0 0 10px rgba(255, 90, 90, 0.45); }
+.pill.error .dot { background: #ff5a5a; box-shadow: 0 0 14px rgba(255, 90, 90, 0.7); }
+@keyframes pulse { 50% { opacity: 0.25; } }
+.sync-state { color: var(--dim); font-size: 15px; }
+.sync-state.ok { color: var(--pink); }
+.sync-note { color: var(--dim); font-size: 13px; line-height: 1.4; margin: 10px 2px; }
+.sync-note.error { color: #ff5a5a; }
+.sync-btn { display: block; width: 100%; margin-top: 14px; padding: 13px; border-radius: 12px; border: 1px solid var(--pink); color: var(--pink);
+  font-size: 16px; font-weight: 700; box-shadow: 0 0 10px rgba(255, 46, 147, 0.35); }
+.sync-btn:disabled { opacity: 0.5; }
+.sync-select { background: var(--card); color: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font: inherit; font-size: 15px; max-width: 60%; color-scheme: dark; }

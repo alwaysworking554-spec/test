@@ -30,4 +30,36 @@ export interface Task {
   due?: string;
 }
 
-export type SyncStatus = "synced" | "syncing" | "offline";
+/** Pill state: synced, mid-sync, off (no permission / no calendar chosen) or failed. */
+export type SyncStatus = "synced" | "syncing" | "off" | "error";
+
+export type PermissionState = "granted" | "denied" | "undetermined" | "unsupported";
+
+export interface ExternalCalendar {
+  id: string;
+  title: string;
+  /** The device's default calendar for new events. */
+  isDefault?: boolean;
+}
+
+/** An event as stored in the external (Apple) calendar. */
+export interface ExternalEvent {
+  externalId: string;
+  calendarId: string;
+  title: string;
+  notes?: string;
+  location?: string;
+  start: string;
+  end: string;
+  allDay: boolean;
+  /** ISO instant of the last modification on the external side. */
+  lastModified: string;
+}
+
+/** Payload for create/update; `externalId` is absent on create. */
+export type ExternalEventInput = Omit<ExternalEvent, "externalId" | "lastModified"> & { externalId?: string };
+
+export interface SyncSettings {
+  calendarId?: string;
+  lastSyncedAt?: string;
+}
