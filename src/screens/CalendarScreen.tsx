@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { DayView } from "../components/DayView";
-import type { OrganizerEvent, SyncStatus, Task } from "../data/types";
+import type { Note, OrganizerEvent, SyncStatus, Task } from "../data/types";
+import { homeTasks, countDone } from "../data/tasks";
+import { noteTitle, notesForDay } from "../data/notes";
 import { MONTHS_SHORT, WEEKDAYS, monthGrid, toKey, trimGrid } from "../data/dates";
 import { daysWithEvents, eventsForDay, timeLabel } from "../data/eventLogic";
 
 interface Props {
   events: OrganizerEvent[];
   tasks: Task[];
+  notes: Note[];
   sync: SyncStatus;
   onToggleTask: (id: string) => void;
   selected: string;
@@ -16,7 +19,7 @@ interface Props {
 
 const SYNC_LABEL: Record<SyncStatus, string> = { synced: "Synced", syncing: "Syncing", offline: "Offline" };
 
-export function CalendarScreen({ events, tasks, sync, onToggleTask, selected, onSelect, onOpenEvent }: Props) {
+export function CalendarScreen({ events, tasks, notes, sync, onToggleTask, selected, onSelect, onOpenEvent }: Props) {
   const today = new Date();
   const todayKey = toKey(today);
   const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
@@ -26,7 +29,9 @@ export function CalendarScreen({ events, tasks, sync, onToggleTask, selected, on
   const eventDays = daysWithEvents(events, toKey(days[0]), toKey(days[days.length - 1]));
   const dayEvents = eventsForDay(events, selected);
   const selDate = new Date(`${selected}T00:00:00`);
-  const done = tasks.filter((t) => t.done).length;
+  const dayNotes = notesForDay(notes, selected);
+  const todays = homeTasks(tasks, todayKey);
+  const { done, total } = countDone(todays);
 
   const shift = (delta: number) => {
     const d = new Date(view.year, view.month + delta, 1);
@@ -115,14 +120,21 @@ export function CalendarScreen({ events, tasks, sync, onToggleTask, selected, on
         </button>
       ))}
 
+      {dayNotes.map((n) => (
+        <article className="card note" key={n.id} data-testid="note-row">
+          <div className="card-title">{noteTitle(n)}</div>
+          <span className="badge">Note</span>
+        </article>
+      ))}
+
       <div className="section">
         <span>Tasks</span>
         <span className="count" data-testid="task-count">
-          {done} / {tasks.length}
+          {done} / {total}
         </span>
       </div>
-      {tasks.map((t) => (
-        <label className={`task${t.done ? " done" : ""}`} key={t.id} data-testid="task">
+      {todays.map((t) => (
+        <label className={`task task-home${t.done ? " done" : ""}`} key={t.id} data-testid="task">
           <input type="checkbox" checked={t.done} onChange={() => onToggleTask(t.id)} />
           <span className="check" />
           <span className="task-label">{t.title}</span>
