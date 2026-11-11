@@ -1,17 +1,20 @@
 import { useState } from "react";
-import type { OrganizerEvent, SyncStatus, Task } from "../data/types";
+import type { Note, OrganizerEvent, SyncStatus, Task } from "../data/types";
+import { homeTasks, countDone } from "../data/tasks";
+import { noteTitle, notesForDay } from "../data/notes";
 import { MONTHS_SHORT, WEEKDAYS, monthGrid, toKey, trimGrid } from "../data/dates";
 
 interface Props {
   events: OrganizerEvent[];
   tasks: Task[];
+  notes: Note[];
   sync: SyncStatus;
   onToggleTask: (id: string) => void;
 }
 
 const SYNC_LABEL: Record<SyncStatus, string> = { synced: "Synced", syncing: "Syncing", offline: "Offline" };
 
-export function CalendarScreen({ events, tasks, sync, onToggleTask }: Props) {
+export function CalendarScreen({ events, tasks, notes, sync, onToggleTask }: Props) {
   const today = new Date();
   const todayKey = toKey(today);
   const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
@@ -21,7 +24,9 @@ export function CalendarScreen({ events, tasks, sync, onToggleTask }: Props) {
   const eventDays = new Set(events.map((e) => e.date));
   const dayEvents = events.filter((e) => e.date === selected).sort((a, b) => a.time.localeCompare(b.time));
   const selDate = new Date(`${selected}T00:00:00`);
-  const done = tasks.filter((t) => t.done).length;
+  const dayNotes = notesForDay(notes, selected);
+  const todays = homeTasks(tasks, todayKey);
+  const { done, total } = countDone(todays);
 
   const shift = (delta: number) => {
     const d = new Date(view.year, view.month + delta, 1);
@@ -96,14 +101,21 @@ export function CalendarScreen({ events, tasks, sync, onToggleTask }: Props) {
         </article>
       ))}
 
+      {dayNotes.map((n) => (
+        <article className="card note" key={n.id} data-testid="note-row">
+          <div className="card-title">{noteTitle(n)}</div>
+          <span className="badge">Note</span>
+        </article>
+      ))}
+
       <div className="section">
         <span>Tasks</span>
         <span className="count" data-testid="task-count">
-          {done} / {tasks.length}
+          {done} / {total}
         </span>
       </div>
-      {tasks.map((t) => (
-        <label className={`task${t.done ? " done" : ""}`} key={t.id} data-testid="task">
+      {todays.map((t) => (
+        <label className={`task task-home${t.done ? " done" : ""}`} key={t.id} data-testid="task">
           <input type="checkbox" checked={t.done} onChange={() => onToggleTask(t.id)} />
           <span className="check" />
           <span className="task-label">{t.title}</span>

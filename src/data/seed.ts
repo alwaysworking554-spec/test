@@ -14,6 +14,7 @@ export function seedEvents(): OrganizerEvent[] {
   ];
 }
 
+/** Optional dev seed: call from the console via `localStorage.setItem("miami.tasks.v1", JSON.stringify(seedTasks()))`. Not used on first launch. */
 export function seedTasks(): Task[] {
   return [
     { id: "t1", title: "Send mix to Carlos", done: true },
