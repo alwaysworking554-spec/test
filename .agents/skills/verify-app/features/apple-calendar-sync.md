@@ -1,4 +1,7 @@
 # Apple Calendar sync
-Status: not implemented (TEST-PWK2XD). Only `CalendarProvider` + `MockCalendarProvider` (`src/data/calendarProvider.ts`) exist; the pill (`sync-pill`) shows the provider's status.
-- Real EventKit verification needs macOS + Xcode (iOS simulator); it cannot run in the browser.
-- In the browser, verify only that the mock reports "Synced" and fetches nothing.
+Status: implemented (TEST-PWK2XD). EventKit plugin in `src-tauri/plugins/tauri-plugin-eventkit` (Swift + Rust, iOS only, unverified without a Mac); the TS side is `src/data/{calendarProvider,tauriCalendarProvider,providerFactory,syncLogic,useCalendarSync,syncSettings}.ts`.
+- Browser/desktop use `MockCalendarProvider` (in-memory, permission always granted, calendars "Personal" (default) and "Work"). Real EventKit cannot run in a browser; use the README "Manual iOS test checklist" on a Mac + iPhone.
+- Pill: `[data-testid="sync-pill"]` is a button with `data-status` = `synced | syncing | off | error` (labels Synced / Syncing / Off / Error). In the browser it settles on `synced` once `app[data-ready=true]`. Click it to open the sheet.
+- Sheet (`sync-sheet`, backdrop `sync-sheet-backdrop`): `sync-permission` (Allowed/Denied/Not asked yet), `sync-allow` (undetermined), `sync-denied-note` + `sync-open-settings` (denied), `sync-calendar` (select), `sync-last` (last synced time), `sync-mock-note` (mock only), `sync-error`, `sync-now`, `sync-done`.
+- Settings persist in `localStorage["miami.sync.v1"]` = `{calendarId, lastSyncedAt}`. After a sync, events in `miami.events.v1` gain `externalId` + `calendarId` (mock ids look like `mock-1`).
+- Browser check: create an event -> within ~1s `miami.events.v1` entry has `externalId`; pressing "Sync now" updates `sync-last`; deleting the event removes its tombstone on the next sync.

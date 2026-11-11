@@ -1,0 +1,13 @@
+[default]
+description = "Allows the app to read and write the device calendar through EventKit"
+permissions = [
+  "allow-get-permission",
+  "allow-request-access",
+  "allow-open-settings",
+  "allow-list-calendars",
+  "allow-fetch-events",
+  "allow-upsert-event",
+  "allow-delete-event",
+  "allow-register-listener",
+  "allow-remove-listener",
+]
