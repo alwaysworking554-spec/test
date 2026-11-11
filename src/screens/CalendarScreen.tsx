@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { DayView } from "../components/DayView";
 import type { Note, OrganizerEvent, SyncStatus, Task } from "../data/types";
 import { homeTasks, countDone } from "../data/tasks";
 import { noteTitle, notesForDay } from "../data/notes";
 import { MONTHS_SHORT, WEEKDAYS, monthGrid, toKey, trimGrid } from "../data/dates";
+import { daysWithEvents, eventsForDay, timeLabel } from "../data/eventLogic";
 
 interface Props {
   events: OrganizerEvent[];
@@ -10,19 +12,22 @@ interface Props {
   notes: Note[];
   sync: SyncStatus;
   onToggleTask: (id: string) => void;
+  selected: string;
+  onSelect: (key: string) => void;
+  onOpenEvent: (e: OrganizerEvent) => void;
 }
 
 const SYNC_LABEL: Record<SyncStatus, string> = { synced: "Synced", syncing: "Syncing", offline: "Offline" };
 
-export function CalendarScreen({ events, tasks, notes, sync, onToggleTask }: Props) {
+export function CalendarScreen({ events, tasks, notes, sync, onToggleTask, selected, onSelect, onOpenEvent }: Props) {
   const today = new Date();
   const todayKey = toKey(today);
   const [view, setView] = useState({ year: today.getFullYear(), month: today.getMonth() });
-  const [selected, setSelected] = useState(todayKey);
+  const [mode, setMode] = useState<"month" | "day">("month");
 
   const days = trimGrid(monthGrid(view.year, view.month), view.month);
-  const eventDays = new Set(events.map((e) => e.date));
-  const dayEvents = events.filter((e) => e.date === selected).sort((a, b) => a.time.localeCompare(b.time));
+  const eventDays = daysWithEvents(events, toKey(days[0]), toKey(days[days.length - 1]));
+  const dayEvents = eventsForDay(events, selected);
   const selDate = new Date(`${selected}T00:00:00`);
   const dayNotes = notesForDay(notes, selected);
   const todays = homeTasks(tasks, todayKey);
@@ -32,6 +37,16 @@ export function CalendarScreen({ events, tasks, notes, sync, onToggleTask }: Pro
     const d = new Date(view.year, view.month + delta, 1);
     setView({ year: d.getFullYear(), month: d.getMonth() });
   };
+
+  // Follow the selected day's month (day view arrows, saving an event on another date).
+  useEffect(() => {
+    const d = new Date(`${selected}T00:00:00`);
+    setView({ year: d.getFullYear(), month: d.getMonth() });
+  }, [selected]);
+
+  if (mode === "day") {
+    return <DayView day={selected} today={todayKey} events={events} onDay={onSelect} onBack={() => setMode("month")} onOpen={onOpenEvent} />;
+  }
 
   let touchX: number | null = null;
 
@@ -77,7 +92,7 @@ export function CalendarScreen({ events, tasks, notes, sync, onToggleTask }: Pro
           const other = d.getMonth() !== view.month;
           const cls = ["day", other && "other", key === todayKey && "today", key === selected && "selected"].filter(Boolean).join(" ");
           return (
-            <button key={key} className={cls} data-testid={`day-${key}`} onClick={() => setSelected(key)}>
+            <button key={key} className={cls} data-testid={`day-${key}`} onClick={() => onSelect(key)}>
               <span className="num">{d.getDate()}</span>
               {eventDays.has(key) && <span className="evdot" data-testid="event-dot" />}
             </button>
@@ -87,18 +102,22 @@ export function CalendarScreen({ events, tasks, notes, sync, onToggleTask }: Pro
 
       <div className="section">
         <span>{selected === todayKey ? "Today" : "Events"}</span>
-        <span className="count" data-testid="event-count">
-          {dayEvents.length} {dayEvents.length === 1 ? "event" : "events"}
+        <span>
+          <button className="viewday" data-testid="open-day-view" onClick={() => setMode("day")}>Day view ›</button>
+          <span className="count" data-testid="event-count">
+            {dayEvents.length} {dayEvents.length === 1 ? "event" : "events"}
+          </span>
         </span>
       </div>
+      {dayEvents.length === 0 && <div className="placeholder" data-testid="no-events">Nothing planned. Tap + to add an event.</div>}
       {dayEvents.map((e) => (
-        <article className="card" key={e.id} data-testid="event-card">
+        <button className="card" key={e.id} data-testid="event-card" onClick={() => onOpenEvent(e)}>
           <div>
             <div className="card-title">{e.title}</div>
-            <div className="card-sub">{e.subtitle}</div>
+            {e.location && <div className="card-sub">{e.location}</div>}
           </div>
-          <div className="card-time">{e.time}</div>
-        </article>
+          <div className="card-time">{timeLabel(e, selected)}</div>
+        </button>
       ))}
 
       {dayNotes.map((n) => (

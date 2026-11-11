@@ -7,9 +7,9 @@
     "dev": "vite --host 127.0.0.1 --port 5173",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "preview": "vite preview",
-    "tauri": "tauri",
-    "test": "vitest run"
+    "tauri": "tauri"
   },
   "dependencies": {
     "react": "^19.0.0",

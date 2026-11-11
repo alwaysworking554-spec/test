@@ -8,6 +8,8 @@ import { TasksScreen } from "./screens/TasksScreen";
 import { NotesScreen } from "./screens/NotesScreen";
 import { NoteEditor } from "./screens/NoteEditor";
 import { TaskSheet } from "./components/TaskSheet";
+import { EventSheet } from "./components/EventSheet";
+import { toKey } from "./data/dates";
 import { TabBar, type Tab } from "./components/TabBar";
 
 export function App() {
@@ -18,6 +20,8 @@ export function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [sync, setSync] = useState<SyncStatus>("synced");
+  const [selected, setSelected] = useState(() => toKey(new Date()));
+  const [sheet, setSheet] = useState<{ event?: OrganizerEvent } | null>(null);
   const [ready, setReady] = useState(false);
   /** null = closed, "new" = creating, Task = editing */
   const [taskSheet, setTaskSheet] = useState<Task | "new" | null>(null);
@@ -69,19 +73,55 @@ export function App() {
   const newNote = () =>
     setEditingNote({ id: `n${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, body: "", updatedAt: Date.now() });
 
-  const fabAction = tab === "tasks" ? () => setTaskSheet("new") : tab === "notes" ? newNote : () => alert("Adding events comes in a later ticket.");
+  const fabAction = tab === "tasks" ? () => setTaskSheet("new") : tab === "notes" ? newNote : () => setSheet({});
+
+  const persist = (next: OrganizerEvent[]) => {
+    setEvents(next);
+    void repo.saveEvents(next);
+  };
+  const saveEvent = (e: OrganizerEvent) => {
+    persist(events.some((x) => x.id === e.id) ? events.map((x) => (x.id === e.id ? e : x)) : [...events, e]);
+    setSelected(toKey(new Date(e.start)));
+    setSheet(null);
+  };
+  // Soft delete: keep a tombstone so a later sync can propagate the deletion.
+  const deleteEvent = (e: OrganizerEvent) => {
+    persist(events.map((x) => (x.id === e.id ? { ...x, deleted: true, lastModified: new Date().toISOString() } : x)));
+    setSheet(null);
+  };
 
   return (
     <div className="screen" data-testid="app" data-ready={ready}>
       <div className="glow" />
       <main className="content">
-        {tab === "calendar" && <CalendarScreen events={events} tasks={tasks} notes={notes} sync={sync} onToggleTask={toggleTask} />}
+        {tab === "calendar" && (
+          <CalendarScreen
+            events={events}
+            tasks={tasks}
+            notes={notes}
+            sync={sync}
+            onToggleTask={toggleTask}
+            selected={selected}
+            onSelect={setSelected}
+            onOpenEvent={(event) => setSheet({ event })}
+          />
+        )}
         {tab === "tasks" && <TasksScreen tasks={tasks} onToggle={toggleTask} onEdit={setTaskSheet} />}
         {tab === "notes" && <NotesScreen notes={notes} onOpen={(id) => setEditingNote(notes.find((n) => n.id === id) ?? null)} />}
       </main>
       <button className="fab" aria-label="Add" data-testid="add-button" onClick={fabAction}>
         +
       </button>
+      {sheet && (
+        <EventSheet
+          key={sheet.event?.id ?? "new"}
+          event={sheet.event}
+          day={selected}
+          onSave={saveEvent}
+          onDelete={deleteEvent}
+          onClose={() => setSheet(null)}
+        />
+      )}
       <TabBar tab={tab} onChange={setTab} />
       {taskSheet && (
         <TaskSheet task={taskSheet === "new" ? null : taskSheet} onSave={saveTask} onDelete={deleteTask} onClose={() => setTaskSheet(null)} />

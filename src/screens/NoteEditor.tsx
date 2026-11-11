@@ -39,14 +39,14 @@ export function NoteEditor({ note, onChange, onDelete, onClose }: Props) {
   return (
     <div className="editor" data-testid="note-editor">
       <div className="editor-bar">
-        <button className="link" data-testid="note-back" onClick={() => onClose(build())}>‹ Notes</button>
+        <button className="tlink" data-testid="note-back" onClick={() => onClose(build())}>‹ Notes</button>
         <span className="editor-state" data-testid="note-saved">{saved ? "Saved" : "Saving…"}</span>
-        <button className="link danger-text" data-testid="note-delete" onClick={() => onDelete(note.id)}>Delete</button>
+        <button className="tlink danger-text" data-testid="note-delete" onClick={() => onDelete(note.id)}>Delete</button>
       </div>
-      <div className="row editor-date">
-        <label className="field-label">Day</label>
-        <input className="field" type="date" data-testid="note-date" value={date} onChange={(e) => setDate(e.target.value)} />
-        {date && <button className="link" onClick={() => setDate("")}>Clear</button>}
+      <div className="trow editor-date">
+        <label className="tfield-label">Day</label>
+        <input className="tfield" type="date" data-testid="note-date" value={date} onChange={(e) => setDate(e.target.value)} />
+        {date && <button className="tlink" onClick={() => setDate("")}>Clear</button>}
       </div>
       <textarea className="editor-body" data-testid="note-body" placeholder="Title on the first line…" autoFocus value={body} onChange={(e) => setBody(e.target.value)} />
     </div>

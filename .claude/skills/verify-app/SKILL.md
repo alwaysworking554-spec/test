@@ -24,8 +24,8 @@ ls ~/.cache/ms-playwright 2>/dev/null   # headless Chromium present?
 If Chromium is missing: `mkdir -p /tmp/pw && cd /tmp/pw && npm init -y && npm i playwright && npx playwright install chromium && npx playwright install-deps chromium` (the last needs apt access). Then use `PW_DIR=/tmp/pw`.
 
 ## Drive
-`PW_DIR=/tmp/pw node .claude/skills/verify-app/drive.mjs http://127.0.0.1:5173 .verify` drives the home screen and prints PASS/FAIL lines (exit 1 on any FAIL). Viewport 390x844 @2x. Real selectors (`data-testid`):
-`app`, `screen-calendar|tasks|notes`, `month-title`, `sync-pill`, `selected-day`, `prev-month`, `next-month`, `month-grid`, `day-YYYY-MM-DD`, `event-dot`, `event-count`, `event-card`, `task`, `task-count`, `add-button`, `tab-calendar|tasks|notes`. Only route is `/` (tabs are state, not URLs).
+`PW_DIR=/tmp/pw node .claude/skills/verify-app/drive.mjs http://127.0.0.1:5173 .verify` drives the home screen and the events flow and prints PASS/FAIL lines (exit 1 on any FAIL). Viewport 390x844 @2x. Real selectors (`data-testid`):
+`app`, `screen-calendar|tasks|notes`, `month-title`, `sync-pill`, `selected-day`, `prev-month`, `next-month`, `month-grid`, `day-YYYY-MM-DD`, `event-dot`, `event-count`, `event-card`, `no-events`, `open-day-view`, `screen-day`, `day-block`, `event-sheet`, `field-title`, `sheet-save`, `delete-event` (full list in features/calendar-events.md), `task`, `task-count`, `add-button`, `tab-calendar|tasks|notes`. Only route is `/` (tabs are state, not URLs).
 
 ## Evidence
 Report the action, the resulting state and side effects: the PASS/FAIL lines (action -> state), `.verify/home.png` (screenshot), and storage side effects (read `localStorage` keys above after a task toggle: `miami.tasks.v1` changes, events unchanged). Also check `/tmp/dev.log` for errors.
